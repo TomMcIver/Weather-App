@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import axios from 'axios';
 import './App.css';
 
-
 import Navbar from './components/Navbar';
 import ForecastPage from './pages/ForecastPage';
 import AlertsPage from './pages/AlertsPage';
@@ -30,7 +29,7 @@ const CurrentWeather = () => {
     }
   };
 
-
+  
   const handleSearch = () => {
     if (city.trim()) {
       fetchWeather(city);
@@ -66,7 +65,7 @@ const CurrentWeather = () => {
     getLocation();
   }, []);
 
-
+ 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       handleSearch();
@@ -127,7 +126,7 @@ function App() {
     document.documentElement.setAttribute('data-theme', savedTheme);
   }, []);
 
-
+  
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
@@ -138,10 +137,7 @@ function App() {
   return (
     <Router>
       <div>
-        <Navbar theme={theme} />
-        <button className="theme-toggle fixed-theme-toggle" onClick={toggleTheme}>
-          Switch to {theme === 'light' ? 'Dark' : 'Light'} Mode
-        </button>
+        <Navbar theme={theme} toggleTheme={toggleTheme} />
         <Routes>
           <Route path="/" element={<CurrentWeather />} />
           <Route path="/forecast" element={<ForecastPage />} />
