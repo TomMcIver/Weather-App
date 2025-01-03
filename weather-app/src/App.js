@@ -9,6 +9,7 @@ import AlertsPage from './pages/AlertsPage';
 import SearchPage from './pages/SearchPage';
 
 
+
 const CurrentWeather = () => {
   const [city, setCity] = useState('');
   const [weather, setWeather] = useState(null);
@@ -143,6 +144,7 @@ function App() {
           <Route path="/forecast" element={<ForecastPage />} />
           <Route path="/alerts" element={<AlertsPage />} />
           <Route path="/search" element={<SearchPage />} />
+          
         </Routes>
       </div>
     </Router>

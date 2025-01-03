@@ -37,6 +37,7 @@ const Navbar = ({ theme, toggleTheme }) => {
         <Link to="/search" className="nav-item" onClick={closeMenu}>
           Search
         </Link>
+        
         <button onClick={toggleTheme} className="theme-toggle-nav">
           {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
         </button>
