@@ -1,25 +1,22 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import axios from 'axios';
 import './App.css';
 
-function App() {
+import Navbar from './components/Navbar';
+import ForecastPage from './pages/ForecastPage';
+import AlertsPage from './pages/AlertsPage';
+import SearchPage from './pages/SearchPage';
+
+
+const CurrentWeather = () => {
   const [city, setCity] = useState('');
   const [weather, setWeather] = useState(null);
   const [autoLocation, setAutoLocation] = useState(false);
-  const [theme, setTheme] = useState('light');
-
+  
   const API_KEY = '7f0a900c2f6b4ad1b7b220228250201';
 
-  
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 
-      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    
-    setTheme(savedTheme);
-    document.documentElement.setAttribute('data-theme', savedTheme);
-  }, []);
 
-  
   const fetchWeather = async (query) => {
     try {
       const response = await axios.get(
@@ -41,7 +38,7 @@ function App() {
     }
   };
 
-  
+
   const getLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -63,26 +60,12 @@ function App() {
     }
   };
 
-  
+
   useEffect(() => {
     getLocation();
   }, []);
 
-  
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    
-    
-    setTheme(newTheme);
-    
-    
-    document.documentElement.setAttribute('data-theme', newTheme);
-    
-    
-    localStorage.setItem('theme', newTheme);
-  };
-
-  
+ 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       handleSearch();
@@ -91,12 +74,8 @@ function App() {
 
   return (
     <div className="app-container">
-      <h1>Weather App</h1>
+      <h1>Current Weather</h1>
       
-      <button className="theme-toggle" onClick={toggleTheme}>
-        Switch to {theme === 'light' ? 'Dark' : 'Light'} Mode
-      </button>
-
       <div className="search-container">
         {!autoLocation && (
           <>
@@ -131,6 +110,42 @@ function App() {
         </div>
       )}
     </div>
+  );
+};
+
+
+function App() {
+  const [theme, setTheme] = useState('light');
+
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') || 
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    
+    setTheme(savedTheme);
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  }, []);
+
+  
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+  };
+
+  return (
+    <Router>
+      <div>
+        <Navbar theme={theme} toggleTheme={toggleTheme} />
+        <Routes>
+          <Route path="/" element={<CurrentWeather />} />
+          <Route path="/forecast" element={<ForecastPage />} />
+          <Route path="/alerts" element={<AlertsPage />} />
+          <Route path="/search" element={<SearchPage />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
