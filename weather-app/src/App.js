@@ -8,29 +8,24 @@ import ForecastPage from './pages/ForecastPage';
 import AlertsPage from './pages/AlertsPage';
 import SearchPage from './pages/SearchPage';
 
+const API_KEY = '825e7c38637d4ebaa1823829250301';
 
-
-const CurrentWeather = () => {
+const CurrentWeather = ({ apiKey }) => {
   const [city, setCity] = useState('');
   const [weather, setWeather] = useState(null);
   const [autoLocation, setAutoLocation] = useState(false);
-  
-  const API_KEY = '7f0a900c2f6b4ad1b7b220228250201';
-
 
   const fetchWeather = async (query) => {
     try {
       const response = await axios.get(
-        `https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${query}`
+        `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${query}&days=1&aqi=yes`
       );
       setWeather(response.data);
     } catch (error) {
-      console.error('Error fetching weather data:', error);
       alert('Failed to fetch weather data. Please try again.');
     }
   };
 
-  
   const handleSearch = () => {
     if (city.trim()) {
       fetchWeather(city);
@@ -38,7 +33,6 @@ const CurrentWeather = () => {
       alert('Please enter a city name');
     }
   };
-
 
   const getLocation = () => {
     if (navigator.geolocation) {
@@ -49,24 +43,23 @@ const CurrentWeather = () => {
           fetchWeather(`${lat},${lon}`);
           setAutoLocation(true);
         },
-        (error) => {
-          console.error('Error getting location:', error);
-          alert('Unable to access location. Please check your browser settings.');
+        () => {
+          alert('Unable to access location.');
           setAutoLocation(false);
         }
       );
     } else {
-      alert('Geolocation is not supported by your browser.');
+      alert('Geolocation is not supported.');
       setAutoLocation(false);
     }
   };
 
-
   useEffect(() => {
-    getLocation();
-  }, []);
+    if (!autoLocation) {
+      getLocation();
+    }
+  }, [autoLocation]);
 
- 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       handleSearch();
@@ -74,9 +67,8 @@ const CurrentWeather = () => {
   };
 
   return (
-    <div className="app-container">
+    <div className="main-content">
       <h1>Current Weather</h1>
-      
       <div className="search-container">
         {!autoLocation && (
           <>
@@ -99,35 +91,41 @@ const CurrentWeather = () => {
       </div>
 
       {weather && (
-        <div className="weather-details">
+        <div className="weather-card">
           <h2>{weather.location.name}, {weather.location.country}</h2>
-          <p>Temperature: {weather.current.temp_c}°C</p>
-          <p>Condition: {weather.current.condition.text}</p>
-          <img
-            src={weather.current.condition.icon}
-            alt="weather icon"
-            className="weather-icon"
-          />
+          <div className="weather-info">
+            <img src={weather.current.condition.icon} alt="Weather icon" className="weather-icon" />
+            <div className="temperature">{weather.current.temp_c}°C</div>
+            <div className="condition">{weather.current.condition.text}</div>
+          </div>
+
+          <div className="weather-details">
+            <p><strong>Feels Like:</strong> {weather.current.feelslike_c}°C</p>
+            <p><strong>Humidity:</strong> {weather.current.humidity}%</p>
+            <p><strong>Wind Speed:</strong> {weather.current.wind_kph} km/h</p>
+            <p><strong>Wind Direction:</strong> {weather.current.wind_dir}</p>
+            <p><strong>Pressure:</strong> {weather.current.pressure_mb} mb</p>
+            <p><strong>UV Index:</strong> {weather.current.uv}</p>
+            <p><strong>Sunrise:</strong> {weather.forecast.forecastday[0].astro.sunrise}</p>
+            <p><strong>Sunset:</strong> {weather.forecast.forecastday[0].astro.sunset}</p>
+          </div>
         </div>
       )}
     </div>
   );
 };
 
-
 function App() {
   const [theme, setTheme] = useState('light');
 
-
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 
+    const savedTheme = localStorage.getItem('theme') ||
       (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    
+
     setTheme(savedTheme);
     document.documentElement.setAttribute('data-theme', savedTheme);
   }, []);
 
-  
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
@@ -137,14 +135,13 @@ function App() {
 
   return (
     <Router>
-      <div>
+      <div className={`app-container ${theme}`}>
         <Navbar theme={theme} toggleTheme={toggleTheme} />
         <Routes>
-          <Route path="/" element={<CurrentWeather />} />
-          <Route path="/forecast" element={<ForecastPage />} />
-          <Route path="/alerts" element={<AlertsPage />} />
-          <Route path="/search" element={<SearchPage />} />
-          
+          <Route path="/" element={<CurrentWeather apiKey={API_KEY} />} />
+          <Route path="/forecast" element={<ForecastPage apiKey={API_KEY} />} />
+          <Route path="/alerts" element={<AlertsPage apiKey={API_KEY} />} />
+          <Route path="/search" element={<SearchPage apiKey={API_KEY} />} />
         </Routes>
       </div>
     </Router>
